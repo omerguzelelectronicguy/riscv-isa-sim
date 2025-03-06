@@ -601,7 +601,7 @@ void processor_t::disasm(insn_t insn)
     s << "core " << std::dec << std::setfill(' ') << std::setw(3) << id
       << std::hex << ": 0x" << std::setfill('0') << std::setw(max_xlen / 4)
       << zext(state.pc, max_xlen) << " (0x" << std::setw(8) << bits << ") "
-      << disassembler->disassemble(insn) << std::endl;
+      /*<< disassembler->disassemble(insn)*/ << std::endl;
 
     debug_output_log(&s);
 

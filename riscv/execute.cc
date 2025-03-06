@@ -28,16 +28,20 @@ static void commit_log_print_value(FILE *log_file, int width, const void *data)
 
   switch (width) {
     case 8:
-      fprintf(log_file, "0x%02" PRIx8, *(const uint8_t *)data);
+      //fprintf(log_file, "0x%02" PRIx8, *(const uint8_t *)data);
+      fwrite(&data, 1, 1, log_file);
       break;
     case 16:
-      fprintf(log_file, "0x%04" PRIx16, *(const uint16_t *)data);
+      //fprintf(log_file, "0x%04" PRIx16, *(const uint16_t *)data);
+      fwrite(&data, 2, 1, log_file);
       break;
     case 32:
-      fprintf(log_file, "0x%08" PRIx32, *(const uint32_t *)data);
+      //fprintf(log_file, "0x%08" PRIx32, *(const uint32_t *)data);
+      fwrite(&data, 4, 1, log_file);
       break;
     case 64:
-      fprintf(log_file, "0x%016" PRIx64, *(const uint64_t *)data);
+      //fprintf(log_file, "0x%016" PRIx64, *(const uint64_t *)data);
+      fwrite(&data, 8, 1, log_file);
       break;
     default:
       // max lengh of vector
@@ -72,13 +76,14 @@ static void commit_log_print_insn(processor_t *p, reg_t pc, insn_t insn)
   int flen = p->get_state()->last_inst_flen;
 
   // print core id on all lines so it is easy to grep
-  fprintf(log_file, "core%4" PRId32 ": ", p->get_id());
+  //fprintf(log_file, "core%4" PRId32 ": ", p->get_id());
 
-  fprintf(log_file, "%1d ", priv);
-  commit_log_print_value(log_file, xlen, pc);
-  fprintf(log_file, " (");
+  fprintf(log_file, priv == 0 ? "0 " : priv == 1 ? "1 " : priv == 2 ? "2 " : priv == 3 ? "3 " : "X ");
+  //commit_log_print_value(log_file, xlen, pc);
+  fwrite(&pc, 8, 1, log_file);
+  //fprintf(log_file, " (");
   commit_log_print_value(log_file, insn.length() * 8, insn.bits());
-  fprintf(log_file, ")");
+  //fprintf(log_file, ")");
   bool show_vec = false;
 
   for (auto item : reg) {
@@ -138,14 +143,14 @@ static void commit_log_print_insn(processor_t *p, reg_t pc, insn_t insn)
   }
 
   for (auto item : load) {
-    fprintf(log_file, " mem ");
+    //fprintf(log_file, " mem ");
     commit_log_print_value(log_file, xlen, std::get<0>(item));
   }
 
   for (auto item : store) {
-    fprintf(log_file, " mem ");
+    //fprintf(log_file, " mem ");
     commit_log_print_value(log_file, xlen, std::get<0>(item));
-    fprintf(log_file, " ");
+    //fprintf(log_file, " ");
     commit_log_print_value(log_file, std::get<2>(item) << 3, std::get<1>(item));
   }
   fprintf(log_file, "\n");
@@ -282,8 +287,8 @@ void processor_t::step(size_t n)
 
           in_wfi = false;
           insn_fetch_t fetch = mmu->load_insn(pc);
-          if (debug && !state.serialized)
-            disasm(fetch.insn);
+          //if (debug && !state.serialized)
+          //  disasm(fetch.insn);
           pc = execute_insn_logged(this, pc, fetch);
           advance_pc();
 
